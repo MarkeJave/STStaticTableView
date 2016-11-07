@@ -6,6 +6,7 @@
 //  Copyright (c) 2015年 Marike Jave. All rights reserved.
 //
 #import "STStaticTableView.h"
+#import <objc/runtime.h>
 
 const CGFloat STNormalCellHeight = 44;
 const CGFloat STEditableCellHeight = 50;
@@ -148,7 +149,7 @@ const CGFloat STEditableCellHeight = 50;
     if (self) {
         [self setPlaceholder:placeholder];
         [self setTextAlignment:NSTextAlignmentNatural];
-        [self _efCopyStyle:[UITextField appearance]];
+        [self copyStyle:[UITextField appearance]];
     }
     return self;
 }
@@ -165,12 +166,12 @@ const CGFloat STEditableCellHeight = 50;
     if (self) {
         self.placeholder = placeholder;
         self.textAlignment = NSTextAlignmentNatural;
-        [self _efCopyStyle:[UITextField appearance]];
+        [self copyStyle:[UITextField appearance]];
     }
     return self;
 }
 
-- (void)_efCopyStyle:(UITextField<UIAppearance> *)appearance;{
+- (void)copyStyle:(UITextField<UIAppearance> *)appearance;{
     self.clearsOnBeginEditing = [appearance clearsOnBeginEditing];
     self.adjustsFontSizeToFitWidth =[appearance adjustsFontSizeToFitWidth];
     self.minimumFontSize = [appearance minimumFontSize];
@@ -277,36 +278,86 @@ const CGFloat STEditableCellHeight = 50;
 
 @implementation UITableViewCell (NormalCellModel)
 
++ (void)load{
+    [super load];
+    
+    SEL originInitializeSelector = @selector(initWithStyle:reuseIdentifier:);
+    SEL swizzleInitializeSelector = @selector(swizzle_initWithStyle:reuseIdentifier:);
+    Method originInitializeMethod = class_getClassMethod(self, originInitializeSelector);
+    Method swizzleInitializeMethod = class_getClassMethod(self, swizzleInitializeSelector);
+    
+    class_addMethod(self, originInitializeSelector, class_getMethodImplementation(self, originInitializeSelector), method_getTypeEncoding(originInitializeMethod));
+    class_addMethod(self, swizzleInitializeSelector, class_getMethodImplementation(self, swizzleInitializeSelector), method_getTypeEncoding(swizzleInitializeMethod));
+    
+    method_exchangeImplementations(class_getInstanceMethod(self, originInitializeSelector), class_getInstanceMethod(self, swizzleInitializeSelector));
+    
+    SEL originSetSelectedSelector = @selector(setSelected:animated:);
+    SEL swizzleSetSelectedSelector = @selector(swizzle_setSelected:animated:);
+    Method originSetSelectedMethod = class_getClassMethod(self, originSetSelectedSelector);
+    Method swizzleSetSelectedMethod = class_getClassMethod(self, swizzleSetSelectedSelector);
+    
+    class_addMethod(self, originSetSelectedSelector, class_getMethodImplementation(self, originSetSelectedSelector), method_getTypeEncoding(originSetSelectedMethod));
+    class_addMethod(self, swizzleSetSelectedSelector, class_getMethodImplementation(self, swizzleSetSelectedSelector), method_getTypeEncoding(swizzleSetSelectedMethod));
+    
+    method_exchangeImplementations(class_getInstanceMethod(self, originSetSelectedSelector), class_getInstanceMethod(self, swizzleSetSelectedSelector));
+}
+
+- (instancetype)swizzle_initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier{
+    UITableViewCell *cell = [self swizzle_initWithStyle:style reuseIdentifier:reuseIdentifier];
+    
+    [cell createSubViews];
+    [cell configSubViewsDefault];
+    [cell installConstraints];
+    
+    return cell;
+}
+
 - (void)setModel:(STNormalCellModel *)model{
-    [[self imageView] setImage:[model image]];
-    [[self textLabel] setText:[model title]];
-    [[self detailTextLabel] setText:[model subTitle]];
-    if ([model titleColor]) {
-        [[self textLabel] setTextColor:[model titleColor]];
-    } else {    
+    objc_setAssociatedObject(self, @selector(model), model, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    
+    [self configSubViews];
+}
+
+- (STNormalCellModel *)model{
+    return objc_getAssociatedObject(self, @selector(model));
+}
+
+- (void)swizzle_setSelected:(BOOL)selected animated:(BOOL)animated{
+    [self swizzle_setSelected:selected animated:animated];
+    self.model.selected = selected;
+}
+
+- (void)configSubViews{
+    
+    [[self imageView] setImage:[[self model] image]];
+    [[self textLabel] setText:[[self model] title]];
+    [[self detailTextLabel] setText:[[self model] subTitle]];
+    if ([[self model] titleColor]) {
+        [[self textLabel] setTextColor:[[self model] titleColor]];
+    } else {
         [[self textLabel] setTextColor:[UIColor blackColor]];
     }
-    if ([model titleFont]) {
-        [[self textLabel] setFont:[model titleFont]];
-    } else {    
+    if ([[self model] titleFont]) {
+        [[self textLabel] setFont:[[self model] titleFont]];
+    } else {
         [[self textLabel] setFont:[UIFont systemFontOfSize:44/3.]];
     }
-    if ([model subTitleColor]) {
-        [[self detailTextLabel] setTextColor:[model subTitleColor]];
-    } else {    
+    if ([[self model] subTitleColor]) {
+        [[self detailTextLabel] setTextColor:[[self model] subTitleColor]];
+    } else {
         [[self detailTextLabel] setTextColor:[UIColor lightGrayColor]];
     }
-    if ([model subTitleFont]) {
-        [[self detailTextLabel] setFont:[model subTitleFont]];
-    } else {    
+    if ([[self model] subTitleFont]) {
+        [[self detailTextLabel] setFont:[[self model] subTitleFont]];
+    } else {
         [[self detailTextLabel] setFont:[UIFont systemFontOfSize:36/3.]];
     }
     [self setSelectionStyle:[[self model] selectionStyle]];
     [self setAccessoryType:[[self model] accessoryType]];
 }
 
-- (STNormalCellModel *)model{
-    return nil;
++ (CGFloat)tableView:(UITableView *)tableView heightWithModel:(STNormalCellModel *)model{
+    return [model height];
 }
 
 @end
@@ -317,41 +368,8 @@ const CGFloat STEditableCellHeight = 50;
 
 @implementation STNormalCell
 
-- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier{
-    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
-    if (self) {
-        [self createSubViews];
-        [self configSubViewsDefault];
-        [self installConstraints];
-    }
-    return self;
-}
-
-- (void)setSelected:(BOOL)selected animated:(BOOL)animated{
-    [super setSelected:selected animated:animated];
-    self.model.selected = selected;
-}
-
-+ (CGFloat)tableView:(UITableView *)tableView heightWithModel:(STNormalCellModel *)model{
-    return [model height];
-}
-
-- (void)setModel:(STNormalCellModel *)model{
-    if (_model != model) {
-        _model = model;
-    }
-    [self configSubViews];
-}
-
-- (void)createSubViews{
-    
-}
-
-- (void)installConstraints{
-    
-}
-
 - (void)configSubViewsDefault{
+    [super configSubViewsDefault];
     [self setSelectionStyle:UITableViewCellSelectionStyleNone];
     [[self textLabel] setTextColor:[UIColor blackColor]];
     [[self textLabel] setFont:[UIFont systemFontOfSize:44/3.]];
@@ -360,6 +378,7 @@ const CGFloat STEditableCellHeight = 50;
 }
 
 - (void)configSubViews{
+    [super configSubViews];
     [[self imageView] setImage:[[self model] image]];
     [[self textLabel] setText:[[self model] title]];
     [[self detailTextLabel] setText:[[self model] subTitle]];
@@ -373,22 +392,22 @@ const CGFloat STEditableCellHeight = 50;
     [self setAccessoryType:[[self model] accessoryType]];
     if ([[self model] titleColor]) {
         [[self textLabel] setTextColor:[[self model] titleColor]];
-    } else {    
+    } else {
         [[self textLabel] setTextColor:[UIColor blackColor]];
     }
     if ([[self model] titleFont]) {
         [[self textLabel] setFont:[[self model] titleFont]];
-    } else {    
+    } else {
         [[self textLabel] setFont:[UIFont systemFontOfSize:44/3.]];
     }
     if ([[self model] subTitleColor]) {
         [[self detailTextLabel] setTextColor:[[self model] subTitleColor]];
-    } else {    
+    } else {
         [[self detailTextLabel] setTextColor:[UIColor grayColor]];
     }
     if ([[self model] subTitleFont]) {
         [[self detailTextLabel] setFont:[[self model] subTitleFont]];
-    } else {    
+    } else {
         [[self detailTextLabel] setFont:[UIFont systemFontOfSize:36/3.]];
     }
     if ([[self model]  backgroundColor]) {
@@ -472,7 +491,7 @@ const CGFloat STEditableCellHeight = 50;
 - (void)configSubViews{
     [super configSubViews];
     [[self detailTextField] addTarget:self action:@selector(didTextChanged:)
-                          forControlEvents:UIControlEventEditingChanged];
+                     forControlEvents:UIControlEventEditingChanged];
     [[self detailTextField] setEnabled:[[self model] editable]];
     [[self detailTextField] setText:[[self model] subTitle]];
     [[self detailTextField] setPlaceholder:[[self model] placeholder]];
@@ -681,7 +700,7 @@ const CGFloat STEditableCellHeight = 50;
 - (void)createSubViews{
     self.tableView = [[UITableView alloc] initWithFrame:CGRectZero style:[self style]];
     self.mutableCellSectionModels = [NSMutableArray arrayWithArray:[self defaultCellSectionModels]];
-                                     
+    
     [self addSubview:[self tableView]];
 }
 
@@ -797,7 +816,7 @@ const CGFloat STEditableCellHeight = 50;
 - (void)insertSection:(STNormalSectionModel *)sectionModel atSectionIndex:(NSInteger)atSectionIndex;{
     [[self mutableCellSectionModels] addObject:sectionModel];
     [[self tableView] insertSections:[NSIndexSet indexSetWithIndex:atSectionIndex]
-                       withRowAnimation:UITableViewRowAnimationBottom];
+                    withRowAnimation:UITableViewRowAnimationBottom];
 }
 
 - (void)deleteSection:(STNormalSectionModel *)sectionModel;{
@@ -809,7 +828,7 @@ const CGFloat STEditableCellHeight = 50;
     if (atSectionIndex >=0 && atSectionIndex < [[self mutableCellSectionModels] count]) {
         [[self mutableCellSectionModels] removeObjectAtIndex:atSectionIndex];
         [[self tableView] deleteSections:[NSIndexSet indexSetWithIndex:atSectionIndex]
-                           withRowAnimation:UITableViewRowAnimationTop];
+                        withRowAnimation:UITableViewRowAnimationTop];
     }
 }
 
@@ -819,7 +838,7 @@ const CGFloat STEditableCellHeight = 50;
         NSInteger rowInSection = [[sectionModel cellModels] count];
         [[sectionModel evMuatableCellModels] addObject:cellModel];
         [[self tableView] insertRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:rowInSection inSection:inSection]]
-                                   withRowAnimation:UITableViewRowAnimationTop];
+                                withRowAnimation:UITableViewRowAnimationTop];
     }
 }
 
@@ -853,7 +872,7 @@ const CGFloat STEditableCellHeight = 50;
             NSInteger rowInSection = [[sectionModel cellModels] indexOfObject:cellModel];
             [[sectionModel evMuatableCellModels] removeObjectAtIndex:rowInSection];
             [[self tableView] deleteRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:rowInSection inSection:inSection]]
-                                       withRowAnimation:UITableViewRowAnimationTop];
+                                    withRowAnimation:UITableViewRowAnimationTop];
         }
     }
 }
@@ -866,7 +885,7 @@ const CGFloat STEditableCellHeight = 50;
             [[sectionModel evMuatableCellModels] removeObjectAtIndex:[atIndexPath row]];
             
             [[self tableView] deleteRowsAtIndexPaths:@[atIndexPath]
-                                       withRowAnimation:UITableViewRowAnimationTop];
+                                    withRowAnimation:UITableViewRowAnimationTop];
         }
     }
 }
@@ -916,7 +935,7 @@ const CGFloat STEditableCellHeight = 50;
     header.sectionModel = sectionModel;
     if ([sectionModel headerBackgroundColor] && [header isKindOfClass:[UITableViewHeaderFooterView class]]) {
         [[(UITableViewHeaderFooterView *)header contentView] setBackgroundColor:[sectionModel headerBackgroundColor]];
-    } else {    
+    } else {
         [header setBackgroundColor:[sectionModel headerBackgroundColor]];
     }
     return header;
@@ -928,7 +947,7 @@ const CGFloat STEditableCellHeight = 50;
     footer.sectionModel = sectionModel;
     if ([sectionModel footerBackgroundColor] && [footer isKindOfClass:[UITableViewHeaderFooterView class]]) {
         [[(UITableViewHeaderFooterView *)footer contentView] setBackgroundColor:[sectionModel headerBackgroundColor]];
-    } else {    
+    } else {
         [footer setBackgroundColor:[sectionModel footerBackgroundColor]];
     }
     return footer;
@@ -959,7 +978,7 @@ const CGFloat STEditableCellHeight = 50;
     STNormalCellModel *model = [[sectionModel cellModels] objectAtIndex:[indexPath row]];
     if ([model selectable]) {
         return indexPath;
-    } else {    
+    } else {
         [model performAction];
     }
     return nil;

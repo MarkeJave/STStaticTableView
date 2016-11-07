@@ -182,15 +182,16 @@ typedef NS_ENUM(NSInteger, STTableViewCellLayoutStyle) {
 
 @property(nonatomic, strong) STNormalCellModel *model;
 
+- (void)createSubViews;
+- (void)installConstraints;
+- (void)configSubViewsDefault;
+- (void)configSubViews;
+
 @end
 
 
 @interface STNormalCell : UITableViewCell
-
-@property(nonatomic, strong) STNormalCellModel *model;
-
 @end
-
 
 @interface STTextCell : STNormalCell
 
