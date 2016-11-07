@@ -327,6 +327,18 @@ const CGFloat STEditableCellHeight = 50;
     self.model.selected = selected;
 }
 
+- (void)createSubViews;{
+    
+}
+
+- (void)installConstraints;{
+    
+}
+
+- (void)configSubViewsDefault;{
+    
+}
+
 - (void)configSubViews{
     
     [[self imageView] setImage:[[self model] image]];
