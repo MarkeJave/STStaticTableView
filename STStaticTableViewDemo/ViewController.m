@@ -53,6 +53,7 @@
     [cellModel setHeight:45];
     [cellModel setTextColor:[UIColor grayColor]];
     [cellModel setFont:[UIFont systemFontOfSize:14]];
+    [cellModel setKeyValues:@{@"accessoryType":@(UITableViewCellAccessoryDisclosureIndicator)}];
     [cellModels addObject:cellModel];
     
     cellModel = [[STEditableCellModel alloc] initWithTitle:@"手机号码：" subTitle:nil

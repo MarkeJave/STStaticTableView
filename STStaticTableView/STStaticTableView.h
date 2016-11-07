@@ -56,6 +56,7 @@ typedef NS_ENUM(NSInteger, STTableViewCellLayoutStyle) {
 @property(nonatomic, assign) SEL action;
 @property(nonatomic, assign) id target;
 @property(nonatomic, strong) id userInfo;
+@property(nonatomic, strong) NSDictionary<NSString *, id> *keyValues;
 
 @property(nonatomic, copy  ) void (^modelCallback)(STNormalCellModel* model);
 

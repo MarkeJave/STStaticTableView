@@ -401,11 +401,12 @@ const CGFloat STEditableCellHeight = 50;
         [[self model] accessoryType] == UITableViewCellAccessoryDetailDisclosureButton) {
         if ([[self model] detailAccessoryView]) {
             [self setAccessoryView:[[self model] detailAccessoryView]];
-        }
-        else if ([[self model] accessoryImage]){
-            
+        } else if ([[self model] accessoryImage]){
             [self setAccessoryView:[[UIImageView alloc] initWithImage:[[self model] accessoryImage]]];
         }
+    }
+    if ([[self model] keyValues]) {
+        [self setValuesForKeysWithDictionary:[[self model] keyValues]];
     }
 }
 
