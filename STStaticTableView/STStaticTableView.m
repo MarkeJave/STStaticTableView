@@ -223,7 +223,7 @@ const CGFloat STEditableCellHeight = 50;
 - (id)initWithCellModels:(NSArray *)cellModels;{
     self = [self init];
     if (self) {
-        [self setcellModels:[cellModels copy]];
+        [self setCellModels:[cellModels copy]];
     }
     return self;
 }
@@ -247,7 +247,7 @@ const CGFloat STEditableCellHeight = 50;
     return [self evMuatableCellModels];
 }
 
-- (void)setcellModels:(NSArray *)cellModels{
+- (void)setCellModels:(NSArray *)cellModels{
     [[self evMuatableCellModels] removeAllObjects];
     [[self evMuatableCellModels] addObjectsFromArray:cellModels];
 }
@@ -669,7 +669,7 @@ const CGFloat STEditableCellHeight = 50;
     return [[self mutableCellSectionModels] copy];
 }
 
-- (void)setcellSectionModels:(NSArray *)cellSectionModels{
+- (void)setCellSectionModels:(NSArray *)cellSectionModels{
     [[self mutableCellSectionModels] removeAllObjects];
     [[self mutableCellSectionModels] addObjectsFromArray:cellSectionModels];
     [self reloadData];

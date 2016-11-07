@@ -14,6 +14,7 @@
 		088DC4FA1DD05A180082EE7D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 088DC4F91DD05A180082EE7D /* Assets.xcassets */; };
 		088DC4FD1DD05A180082EE7D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 088DC4FB1DD05A180082EE7D /* LaunchScreen.storyboard */; };
 		088DC5071DD05A9E0082EE7D /* STStaticTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 088DC5061DD05A9E0082EE7D /* STStaticTableView.m */; };
+		088DC50A1DD0672D0082EE7D /* STNormalSelectableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 088DC5091DD0672D0082EE7D /* STNormalSelectableCell.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +30,8 @@
 		088DC4FE1DD05A180082EE7D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		088DC5051DD05A9E0082EE7D /* STStaticTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = STStaticTableView.h; sourceTree = "<group>"; };
 		088DC5061DD05A9E0082EE7D /* STStaticTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = STStaticTableView.m; sourceTree = "<group>"; };
+		088DC5081DD0672D0082EE7D /* STNormalSelectableCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = STNormalSelectableCell.h; sourceTree = "<group>"; };
+		088DC5091DD0672D0082EE7D /* STNormalSelectableCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = STNormalSelectableCell.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +64,8 @@
 		088DC4EC1DD05A180082EE7D /* STStaticTableViewDemo */ = {
 			isa = PBXGroup;
 			children = (
+				088DC5081DD0672D0082EE7D /* STNormalSelectableCell.h */,
+				088DC5091DD0672D0082EE7D /* STNormalSelectableCell.m */,
 				088DC5041DD05A9E0082EE7D /* STStaticTableView */,
 				088DC4F01DD05A180082EE7D /* AppDelegate.h */,
 				088DC4F11DD05A180082EE7D /* AppDelegate.m */,
@@ -164,6 +169,7 @@
 			files = (
 				088DC5071DD05A9E0082EE7D /* STStaticTableView.m in Sources */,
 				088DC4F51DD05A180082EE7D /* ViewController.m in Sources */,
+				088DC50A1DD0672D0082EE7D /* STNormalSelectableCell.m in Sources */,
 				088DC4F21DD05A180082EE7D /* AppDelegate.m in Sources */,
 				088DC4EF1DD05A180082EE7D /* main.m in Sources */,
 			);
