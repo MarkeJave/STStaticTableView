@@ -6,6 +6,7 @@ use_frameworks!
 
 abstract_target 'STStaticTableViewDemos’ do
     pod 'STStaticTableView', '~> 1.0.0'
+
     target 'STStaticTableViewDemo' do
     end
 end
