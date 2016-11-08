@@ -32,14 +32,14 @@ typedef NS_ENUM(NSInteger, STTableViewCellLayoutStyle) {
 @property(nonatomic, copy  ) UIFont *titleFont;
 @property(nonatomic, strong) UIColor *titleColor;
 @property(nonatomic, assign) NSTextAlignment titleAlignment;
-@property(nonatomic, assign) NSInteger titleNumberOfLines;
+@property(nonatomic, assign) NSUInteger titleNumberOfLines;
 @property(nonatomic, assign) NSLineBreakMode titleLineBreakMode;
 
 @property(nonatomic, copy  ) NSString *subTitle;
 @property(nonatomic, copy  ) UIFont *subTitleFont;
 @property(nonatomic, strong) UIColor *subTitleColor;
 @property(nonatomic, assign) NSTextAlignment subTitleAlignment;
-@property(nonatomic, assign) NSInteger subTitleNumberOfLines;
+@property(nonatomic, assign) NSUInteger subTitleNumberOfLines;
 @property(nonatomic, assign) NSLineBreakMode subTitleLineBreakMode;
 
 @property(nonatomic, assign) UITableViewCellStyle style;
@@ -223,39 +223,39 @@ typedef NS_ENUM(NSInteger, STTableViewCellLayoutStyle) {
 
 @property(nonatomic, strong, readonly) UITableView *tableView;
 
-@property(nonatomic, strong) NSArray *cellSectionModels;
+@property(nonatomic, strong) NSArray<STNormalSectionModel *> *cellSectionModels;
 
 - (instancetype)initWithStyle:(UITableViewStyle)style;
 
-- (instancetype)initWithStyle:(UITableViewStyle)style defaultCellModels:(NSArray *)defaultCellModels;
+- (instancetype)initWithStyle:(UITableViewStyle)style defaultCellModels:(NSArray<STNormalCellModel *> *)defaultCellModels;
 
-- (instancetype)initWithStyle:(UITableViewStyle)style defaultCellSections:(NSArray *)defaultCellSections;
+- (instancetype)initWithStyle:(UITableViewStyle)style defaultCellSections:(NSArray<STNormalSectionModel *> *)defaultCellSections;
 
 - (void)reloadData;
 
 - (void)removeAll;
 
-- (STNormalSectionModel *)addTitleSection:(NSString *)sectionTitle;
-- (STNormalSectionModel *)insertTitleSection:(NSString *)sectionTitle atSectionIndex:(NSInteger)atSectionIndex;
+- (STNormalSectionModel *)addSectionWithTitle:(NSString *)title;
+- (STNormalSectionModel *)insertSectionWithTitle:(NSString *)title section:(NSUInteger)section;
 
-- (STNormalCellModel *)addCellWithTitle:(NSString *)title inSection:(NSInteger)inSection;
-- (STNormalCellModel *)addCellWithTitle:(NSString *)title detailText:(NSString *)detailText image:(UIImage *)image style:(UITableViewCellStyle)style inSection:(NSInteger)inSection;
-- (STNormalCellModel *)insertCellWithTitle:(NSString *)title atIndexPath:(NSIndexPath *)atIndexPath;
-- (STNormalCellModel *)insertCellWithTitle:(NSString *)title detailText:(NSString *)detailText image:(UIImage *)image style:(UITableViewCellStyle)style atIndexPath:(NSIndexPath *)atIndexPath;
+- (STNormalCellModel *)addCellWithTitle:(NSString *)title section:(NSUInteger)section;
+- (STNormalCellModel *)addCellWithTitle:(NSString *)title detailText:(NSString *)detailText image:(UIImage *)image style:(UITableViewCellStyle)style section:(NSUInteger)section;
+- (STNormalCellModel *)insertCellWithTitle:(NSString *)title indexPath:(NSIndexPath *)indexPath;
+- (STNormalCellModel *)insertCellWithTitle:(NSString *)title detailText:(NSString *)detailText image:(UIImage *)image style:(UITableViewCellStyle)style indexPath:(NSIndexPath *)indexPath;
 
-- (void)addSection:(STNormalSectionModel *)sectionModel;
-- (void)insertSection:(STNormalSectionModel *)sectionModel atSectionIndex:(NSInteger)atSectionIndex;
-- (void)deleteSection:(STNormalSectionModel *)sectionModel;
-- (void)deleteSectionAtIndex:(NSInteger)atSectionIndex;
+- (void)addSectionWithModel:(STNormalSectionModel *)sectionModel;
+- (void)insertSectionWithModel:(STNormalSectionModel *)sectionModel section:(NSUInteger)section;
+- (void)deleteSectionWithModel:(STNormalSectionModel *)sectionModel;
+- (void)deleteSection:(NSUInteger)section;
 
-- (void)addCell:(STNormalCellModel *)cellModel inSection:(NSInteger)inSection;
-- (void)insertCell:(STNormalCellModel *)cellModel atIndexPath:(NSIndexPath *)atIndexPath;
-- (void)deleteCell:(STNormalCellModel *)cellModel;
-- (void)deleteCell:(STNormalCellModel *)cellModel inSection:(NSInteger)inSection;
-- (void)deleteCellAtIndexPath:(NSIndexPath *)atIndexPath;
+- (void)addCellWithModel:(STNormalCellModel *)cellModel section:(NSUInteger)section;
+- (void)insertCellWithModel:(STNormalCellModel *)cellModel indexPath:(NSIndexPath *)indexPath;
+- (void)deleteCellWithModel:(STNormalCellModel *)cellModel;
+- (void)deleteCellWithModel:(STNormalCellModel *)cellModel section:(NSUInteger)section;
+- (void)deleteCellAtIndexPath:(NSIndexPath *)indexPath;
 
-- (void)reloadCellAtIndexPaths:(NSArray *)atIndexPaths;
+- (void)reloadCellAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths;
 
-- (void)reloadSectionAtSections:(NSIndexSet *)atSections;
+- (void)reloadSectionAtSections:(NSIndexSet *)sections;
 
 @end

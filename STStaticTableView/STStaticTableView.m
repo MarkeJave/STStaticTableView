@@ -215,7 +215,7 @@ const CGFloat STEditableCellHeight = 50;
 
 @interface STNormalSectionModel ()
 
-@property(nonatomic, strong) NSMutableArray<STNormalCellModel *> *evMuatableCellModels;
+@property(nonatomic, strong) NSMutableArray<STNormalCellModel *> *muatableCellModels;
 
 @end
 
@@ -237,20 +237,20 @@ const CGFloat STEditableCellHeight = 50;
     return self;
 }
 
-- (NSMutableArray *)evMuatableCellModels{
-    if (!_evMuatableCellModels) {
-        _evMuatableCellModels = [NSMutableArray array];
+- (NSMutableArray *)muatableCellModels{
+    if (!_muatableCellModels) {
+        _muatableCellModels = [NSMutableArray array];
     }
-    return _evMuatableCellModels;
+    return _muatableCellModels;
 }
 
 - (NSArray *)cellModels{
-    return [self evMuatableCellModels];
+    return [self muatableCellModels];
 }
 
 - (void)setCellModels:(NSArray *)cellModels{
-    [[self evMuatableCellModels] removeAllObjects];
-    [[self evMuatableCellModels] addObjectsFromArray:cellModels];
+    [[self muatableCellModels] removeAllObjects];
+    [[self muatableCellModels] addObjectsFromArray:cellModels];
 }
 
 - (Class<STNormalSectionViewInterface>)headerViewClass{
@@ -272,7 +272,7 @@ const CGFloat STEditableCellHeight = 50;
 
 @interface STNormalSectionModel (Private)
 
-@property(nonatomic, strong) NSMutableArray<STNormalCellModel *> *evMuatableCellModels;
+@property(nonatomic, strong) NSMutableArray<STNormalCellModel *> *muatableCellModels;
 
 @end
 
@@ -777,99 +777,95 @@ const CGFloat STEditableCellHeight = 50;
     [[self mutableCellSectionModels] removeAllObjects];
     [[self tableView] reloadData];
 }
-
-- (STNormalSectionModel *)addTitleSection:(NSString *)sectionTitle;{
+- (STNormalSectionModel *)addSectionWithTitle:(NSString *)title;{
     STNormalSectionModel *normalCellSectionModel = [[STNormalSectionModel alloc] init];
-    normalCellSectionModel.headerTitle = sectionTitle;
-    [self addSection:normalCellSectionModel];
+    normalCellSectionModel.headerTitle = title;
+    [self addSectionWithModel:normalCellSectionModel];
+    return normalCellSectionModel;
+}
+- (STNormalSectionModel *)insertSectionWithTitle:(NSString *)title section:(NSUInteger)section;{
+    STNormalSectionModel *normalCellSectionModel = [[STNormalSectionModel alloc] init];
+    normalCellSectionModel.headerTitle = title;
+    [self insertSectionWithModel:normalCellSectionModel section:section];
     return normalCellSectionModel;
 }
 
-- (STNormalSectionModel *)insertTitleSection:(NSString *)sectionTitle atSectionIndex:(NSInteger)atSectionIndex;{
-    STNormalSectionModel *normalCellSectionModel = [[STNormalSectionModel alloc] init];
-    normalCellSectionModel.headerTitle = sectionTitle;
-    [self insertSection:normalCellSectionModel atSectionIndex:atSectionIndex];
-    return normalCellSectionModel;
-}
-
-- (STNormalCellModel *)addCellWithTitle:(NSString *)title inSection:(NSInteger)inSection;{
+- (STNormalCellModel *)addCellWithTitle:(NSString *)title section:(NSUInteger)section;{
     STNormalCellModel *normalCellModel = [[STNormalCellModel alloc] init];
     [normalCellModel setTitle:title];
-    [self addCell:normalCellModel inSection:inSection];
+    [self addCellWithModel:normalCellModel section:section];
     return normalCellModel;
 }
-
-- (STNormalCellModel *)addCellWithTitle:(NSString *)title detailText:(NSString *)detailText image:(UIImage *)image style:(UITableViewCellStyle)style inSection:(NSInteger)inSection;{
+- (STNormalCellModel *)addCellWithTitle:(NSString *)title detailText:(NSString *)detailText image:(UIImage *)image style:(UITableViewCellStyle)style section:(NSUInteger)section;{
     STNormalCellModel *normalCellModel = [[STNormalCellModel alloc] initWithTitle:title subTitle:detailText style:style target:nil action:nil];
     normalCellModel.image = image;
-    [self addCell:normalCellModel inSection:inSection];
+    [self addCellWithModel:normalCellModel section:section];
     return normalCellModel;
 }
 
-- (STNormalCellModel *)insertCellWithTitle:(NSString *)title atIndexPath:(NSIndexPath *)atIndexPath;{
+- (STNormalCellModel *)insertCellWithTitle:(NSString *)title indexPath:(NSIndexPath *)indexPath;{
     STNormalCellModel *normalCellModel = [[STNormalCellModel alloc] init];
     [normalCellModel setTitle:title];
-    [self insertCell:normalCellModel atIndexPath:atIndexPath];
+    [self insertCellWithModel:normalCellModel indexPath:indexPath];
     return normalCellModel;
 }
-
-- (STNormalCellModel *)insertCellWithTitle:(NSString *)title detailText:(NSString *)detailText image:(UIImage *)image style:(UITableViewCellStyle)style atIndexPath:(NSIndexPath *)atIndexPath;{
+- (STNormalCellModel *)insertCellWithTitle:(NSString *)title detailText:(NSString *)detailText image:(UIImage *)image style:(UITableViewCellStyle)style indexPath:(NSIndexPath *)indexPath;{
     STNormalCellModel *normalCellModel = [[STNormalCellModel alloc] initWithTitle:title subTitle:detailText style:style target:nil action:nil];
     normalCellModel.image = image;
-    [self insertCell:normalCellModel atIndexPath:atIndexPath];
+    [self insertCellWithModel:normalCellModel indexPath:indexPath];
     return normalCellModel;
 }
 
-- (void)addSection:(STNormalSectionModel *)sectionModel;{
-    NSInteger etInsertSection = [[self mutableCellSectionModels] count];
-    [self insertSection:sectionModel atSectionIndex:etInsertSection];
+- (void)addSectionWithModel:(STNormalSectionModel *)sectionModel;{
+    NSInteger insertSection = [[self mutableCellSectionModels] count];
+    [self insertSectionWithModel:sectionModel section:insertSection];
 }
 
-- (void)insertSection:(STNormalSectionModel *)sectionModel atSectionIndex:(NSInteger)atSectionIndex;{
+- (void)insertSectionWithModel:(STNormalSectionModel *)sectionModel section:(NSUInteger)section;{
     [[self mutableCellSectionModels] addObject:sectionModel];
-    [[self tableView] insertSections:[NSIndexSet indexSetWithIndex:atSectionIndex]
+    [[self tableView] insertSections:[NSIndexSet indexSetWithIndex:section]
                     withRowAnimation:UITableViewRowAnimationBottom];
 }
 
-- (void)deleteSection:(STNormalSectionModel *)sectionModel;{
-    NSInteger etDeleteSection = [[self mutableCellSectionModels] indexOfObject:sectionModel];
-    [self deleteSectionAtIndex:etDeleteSection];
+- (void)deleteSectionWithModel:(STNormalSectionModel *)sectionModel;{
+    NSInteger deleteSection = [[self mutableCellSectionModels] indexOfObject:sectionModel];
+    [self deleteSection:deleteSection];
 }
 
-- (void)deleteSectionAtIndex:(NSInteger)atSectionIndex;{
-    if (atSectionIndex >=0 && atSectionIndex < [[self mutableCellSectionModels] count]) {
-        [[self mutableCellSectionModels] removeObjectAtIndex:atSectionIndex];
-        [[self tableView] deleteSections:[NSIndexSet indexSetWithIndex:atSectionIndex]
+- (void)deleteSection:(NSUInteger)section;{
+    if (section < [[self mutableCellSectionModels] count]) {
+        [[self mutableCellSectionModels] removeObjectAtIndex:section];
+        [[self tableView] deleteSections:[NSIndexSet indexSetWithIndex:section]
                         withRowAnimation:UITableViewRowAnimationTop];
     }
 }
 
-- (void)addCell:(STNormalCellModel *)cellModel inSection:(NSInteger)inSection;{
-    if (cellModel && inSection >=0 && inSection < [[self mutableCellSectionModels] count]) {
-        STNormalSectionModel *sectionModel = [[self mutableCellSectionModels] objectAtIndex:inSection];
+- (void)addCellWithModel:(STNormalCellModel *)cellModel section:(NSUInteger)section;{
+    if (cellModel && section < [[self mutableCellSectionModels] count]) {
+        STNormalSectionModel *sectionModel = [[self mutableCellSectionModels] objectAtIndex:section];
         NSInteger rowInSection = [[sectionModel cellModels] count];
-        [[sectionModel evMuatableCellModels] addObject:cellModel];
-        [[self tableView] insertRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:rowInSection inSection:inSection]]
+        [[sectionModel muatableCellModels] addObject:cellModel];
+        [[self tableView] insertRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:rowInSection inSection:section]]
                                 withRowAnimation:UITableViewRowAnimationTop];
     }
 }
 
-- (void)insertCell:(STNormalCellModel *)cellModel atIndexPath:(NSIndexPath *)atIndexPath;{
-    if (cellModel && [atIndexPath section] >=0 && [atIndexPath section] < [[self mutableCellSectionModels] count]) {
-        STNormalSectionModel *sectionModel = [[self mutableCellSectionModels] objectAtIndex:[atIndexPath section]];
-        if ([atIndexPath row] >=0 && [atIndexPath row] <= [[sectionModel cellModels] count]) {
-            [[sectionModel evMuatableCellModels] insertObject:cellModel atIndex:[atIndexPath row]];
-            [[self tableView] insertRowsAtIndexPaths:@[atIndexPath] withRowAnimation:UITableViewRowAnimationTop];
+- (void)insertCellWithModel:(STNormalCellModel *)cellModel indexPath:(NSIndexPath *)indexPath;{
+    if (cellModel && [indexPath section] >=0 && [indexPath section] < [[self mutableCellSectionModels] count]) {
+        STNormalSectionModel *sectionModel = [[self mutableCellSectionModels] objectAtIndex:[indexPath section]];
+        if ([indexPath row] >=0 && [indexPath row] <= [[sectionModel cellModels] count]) {
+            [[sectionModel muatableCellModels] insertObject:cellModel atIndex:[indexPath row]];
+            [[self tableView] insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationTop];
         }
     }
 }
 
-- (void)deleteCell:(STNormalCellModel *)cellModel;{
+- (void)deleteCellWithModel:(STNormalCellModel *)cellModel;{
     if (cellModel) {
         [[self mutableCellSectionModels] enumerateObjectsUsingBlock:^(STNormalSectionModel *sectionModel, NSUInteger section, BOOL *stop) {
             if ([[sectionModel cellModels] containsObject:cellModel]) {
                 NSInteger rowInSection = [[sectionModel cellModels] indexOfObject:cellModel];
-                [[sectionModel evMuatableCellModels] removeObjectAtIndex:rowInSection];
+                [[sectionModel muatableCellModels] removeObjectAtIndex:rowInSection];
                 [[self tableView] deleteRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:rowInSection inSection:section]] withRowAnimation:UITableViewRowAnimationTop];
                 *stop = YES;
             }
@@ -877,37 +873,37 @@ const CGFloat STEditableCellHeight = 50;
     }
 }
 
-- (void)deleteCell:(STNormalCellModel *)cellModel inSection:(NSInteger)inSection;{
-    if (cellModel && inSection >=0 && inSection < [[self mutableCellSectionModels] count]) {
-        STNormalSectionModel *sectionModel = [[self mutableCellSectionModels] objectAtIndex:inSection];
+- (void)deleteCellWithModel:(STNormalCellModel *)cellModel section:(NSUInteger)section;{
+    if (cellModel && section < [[self mutableCellSectionModels] count]) {
+        STNormalSectionModel *sectionModel = [[self mutableCellSectionModels] objectAtIndex:section];
         if ([[sectionModel cellModels] containsObject:cellModel]) {
             NSInteger rowInSection = [[sectionModel cellModels] indexOfObject:cellModel];
-            [[sectionModel evMuatableCellModels] removeObjectAtIndex:rowInSection];
-            [[self tableView] deleteRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:rowInSection inSection:inSection]]
+            [[sectionModel muatableCellModels] removeObjectAtIndex:rowInSection];
+            [[self tableView] deleteRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:rowInSection inSection:section]]
                                     withRowAnimation:UITableViewRowAnimationTop];
         }
     }
 }
 
-- (void)deleteCellAtIndexPath:(NSIndexPath *)atIndexPath;{
-    if ([atIndexPath section] >=0 && [atIndexPath section] < [[self mutableCellSectionModels] count]) {
-        STNormalSectionModel *sectionModel = [[self mutableCellSectionModels] objectAtIndex:[atIndexPath section]];
-        if ([atIndexPath row] >=0 && [atIndexPath row] < [[sectionModel evMuatableCellModels] count]) {
+- (void)deleteCellAtIndexPath:(NSIndexPath *)indexPath;{
+    if ([indexPath section] >=0 && [indexPath section] < [[self mutableCellSectionModels] count]) {
+        STNormalSectionModel *sectionModel = [[self mutableCellSectionModels] objectAtIndex:[indexPath section]];
+        if ([indexPath row] >=0 && [indexPath row] < [[sectionModel muatableCellModels] count]) {
             
-            [[sectionModel evMuatableCellModels] removeObjectAtIndex:[atIndexPath row]];
+            [[sectionModel muatableCellModels] removeObjectAtIndex:[indexPath row]];
             
-            [[self tableView] deleteRowsAtIndexPaths:@[atIndexPath]
+            [[self tableView] deleteRowsAtIndexPaths:@[indexPath]
                                     withRowAnimation:UITableViewRowAnimationTop];
         }
     }
 }
 
-- (void)reloadCellAtIndexPaths:(NSArray *)atIndexPaths;{
-    [[self tableView] reloadRowsAtIndexPaths:atIndexPaths withRowAnimation:UITableViewRowAnimationFade];
+- (void)reloadCellAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths;{
+    [[self tableView] reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationFade];
 }
 
-- (void)reloadSectionAtSections:(NSIndexSet *)atSections;{
-    [[self tableView] reloadSections:atSections withRowAnimation:UITableViewRowAnimationFade];
+- (void)reloadSectionAtSections:(NSIndexSet *)sections;{
+    [[self tableView] reloadSections:sections withRowAnimation:UITableViewRowAnimationFade];
 }
 
 #pragma mark - UITableViewDelegate, UITableViewDataSource
