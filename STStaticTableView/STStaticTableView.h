@@ -35,12 +35,12 @@ typedef NS_ENUM(NSInteger, STTableViewCellLayoutStyle) {
 @property(nonatomic, assign) NSUInteger titleNumberOfLines;
 @property(nonatomic, assign) NSLineBreakMode titleLineBreakMode;
 
-@property(nonatomic, copy  ) NSString *subTitle;
-@property(nonatomic, copy  ) UIFont *subTitleFont;
-@property(nonatomic, strong) UIColor *subTitleColor;
-@property(nonatomic, assign) NSTextAlignment subTitleAlignment;
-@property(nonatomic, assign) NSUInteger subTitleNumberOfLines;
-@property(nonatomic, assign) NSLineBreakMode subTitleLineBreakMode;
+@property(nonatomic, copy  ) NSString *subtitle;
+@property(nonatomic, copy  ) UIFont *subtitleFont;
+@property(nonatomic, strong) UIColor *subtitleColor;
+@property(nonatomic, assign) NSTextAlignment subtitleAlignment;
+@property(nonatomic, assign) NSUInteger subtitleNumberOfLines;
+@property(nonatomic, assign) NSLineBreakMode subtitleLineBreakMode;
 
 @property(nonatomic, assign) UITableViewCellStyle style;
 @property(nonatomic, assign) UITableViewCellSelectionStyle selectionStyle;
@@ -58,7 +58,7 @@ typedef NS_ENUM(NSInteger, STTableViewCellLayoutStyle) {
 @property(nonatomic, strong) id userInfo;
 @property(nonatomic, strong) NSDictionary<NSString *, id> *keyValues;
 
-@property(nonatomic, copy  ) void (^modelCallback)(STNormalCellModel* model);
+@property(nonatomic, copy  ) void (^handler)(STNormalCellModel* model);
 
 @property(nonatomic, assign, readonly) BOOL enableAction;
 
@@ -67,22 +67,22 @@ typedef NS_ENUM(NSInteger, STTableViewCellLayoutStyle) {
 - (id)initWithTitle:(NSString *)title;
 
 - (id)initWithTitle:(NSString *)title
-           subTitle:(NSString *)subTitle;
+           subtitle:(NSString *)subtitle;
 
 - (id)initWithTitle:(NSString *)title
          detailText:(NSString *)detailText;
 
 - (id)initWithTitle:(NSString *)title
-           subTitle:(NSString *)subTitle
+           subtitle:(NSString *)subtitle
               style:(UITableViewCellStyle)style;
 
 - (id)initWithTitle:(NSString *)title
-           subTitle:(NSString *)subTitle
+           subtitle:(NSString *)subtitle
               style:(UITableViewCellStyle)style
-      modelCallback:(void (^)(STNormalCellModel* model))modelCallback;
+            handler:(void (^)(STNormalCellModel* model))handler;
 
 - (id)initWithTitle:(NSString *)title
-           subTitle:(NSString *)subTitle
+           subtitle:(NSString *)subtitle
               style:(UITableViewCellStyle)style
              target:(id)target
              action:(SEL)action;
@@ -121,22 +121,22 @@ typedef NS_ENUM(NSInteger, STTableViewCellLayoutStyle) {
 @property(nonatomic) UIReturnKeyType returnKeyType;
 
 - (id)initWithTitle:(NSString *)title
-           subTitle:(NSString *)subTitle
+           subtitle:(NSString *)subtitle
         placeholder:(NSString *)placeholder
               style:(UITableViewCellStyle)style;
 
 - (id)initWithTitle:(NSString *)title
-           subTitle:(NSString *)subTitle
+           subtitle:(NSString *)subtitle
         placeholder:(NSString *)placeholder
               style:(UITableViewCellStyle)style
              target:(id)target
              action:(SEL)action;
 
 - (id)initWithTitle:(NSString *)title
-           subTitle:(NSString *)subTitle
+           subtitle:(NSString *)subtitle
         placeholder:(NSString *)placeholder
               style:(UITableViewCellStyle)style
-      modelCallback:(void (^)(STNormalCellModel* model))modelCallback;
+            handler:(void (^)(STNormalCellModel* model))handler;
 
 
 @end

@@ -14,61 +14,61 @@ const CGFloat STEditableCellHeight = 50;
 @implementation STNormalCellModel
 
 - (void)dealloc{
-    [self setTitle:nil];
-    [self setSubTitle:nil];
-    [self setCellClass:nil];
-    [self setAction:nil];
-    [self setTarget:nil];
-    [self setUserInfo:nil];
-    [self setModelCallback:nil];
+    self.title = nil;
+    self.subtitle = nil;
+    self.cellClass = nil;
+    self.action = nil;
+    self.target = nil;
+    self.userInfo = nil;
+    self.handler = nil;
 }
 
 - (id)initWithTitle:(NSString *)title;{
-    return [self initWithTitle:title subTitle:nil style:UITableViewCellStyleDefault];
+    return [self initWithTitle:title subtitle:nil style:UITableViewCellStyleDefault];
 }
 
 - (id)initWithTitle:(NSString *)title
-           subTitle:(NSString *)subTitle;{
-    return [self initWithTitle:title subTitle:subTitle style:UITableViewCellStyleSubtitle];
+           subtitle:(NSString *)subtitle;{
+    return [self initWithTitle:title subtitle:subtitle style:UITableViewCellStyleSubtitle];
 }
 
 - (id)initWithTitle:(NSString *)title
          detailText:(NSString *)detailText{
-    return [self initWithTitle:title subTitle:detailText style:UITableViewCellStyleValue1];
+    return [self initWithTitle:title subtitle:detailText style:UITableViewCellStyleValue1];
 }
 
 - (id)initWithTitle:(NSString *)title
-           subTitle:(NSString *)subTitle
+           subtitle:(NSString *)subtitle
               style:(UITableViewCellStyle)style;{
-    return [self initWithTitle:title subTitle:subTitle style:style modelCallback:nil];
+    return [self initWithTitle:title subtitle:subtitle style:style handler:nil];
 }
 
 - (id)initWithTitle:(NSString *)title
-           subTitle:(NSString *)subTitle
+           subtitle:(NSString *)subtitle
               style:(UITableViewCellStyle)style
-      modelCallback:(void (^)(STNormalCellModel* model))modelCallback;{
+            handler:(void (^)(STNormalCellModel* model))handler;{
     self = [self init];
     if (self) {
-        [self setStyle:style];
-        [self setTitle:title];
-        [self setSubTitle:subTitle];
-        [self setModelCallback:modelCallback];
+        self.style = style;
+        self.title = title;
+        self.subtitle = subtitle;
+        self.handler = handler;
     }
     return self;
 }
 
 - (id)initWithTitle:(NSString *)title
-           subTitle:(NSString *)subTitle
+           subtitle:(NSString *)subtitle
               style:(UITableViewCellStyle)style
              target:(id)target
              action:(SEL)action;{
     self = [self init];
     if (self) {
-        [self setTitle:title];
-        [self setSubTitle:subTitle];
-        [self setStyle:style];
-        [self setTarget:target];
-        [self setAction:action];
+        self.style = style;
+        self.title = title;
+        self.subtitle = subtitle;
+        self.target = target;
+        self.action = action;
     }
     return self;
 }
@@ -88,15 +88,15 @@ const CGFloat STEditableCellHeight = 50;
 }
 
 - (BOOL)enableAction{
-    return ([self target] && [self action]) || [self modelCallback];
+    return ([self target] && [self action]) || [self handler];
 }
 
 - (void)performAction{
     if ([self enableAction]){
         if ([self target] && [[self target] respondsToSelector:[self action]]) {
             [[self target] performSelector:[self action] withObject:self];
-        } else if ([self modelCallback]){
-            self.modelCallback(self);
+        } else if ([self handler]){
+            self.handler(self);
         }
     }
 }
@@ -123,46 +123,46 @@ const CGFloat STEditableCellHeight = 50;
 - (id)init{
     self = [super init];
     if (self) {
-        [self setEditable:YES];
+        self.editable = YES;
     }
     return self;
 }
 
 - (id)initWithTitle:(NSString *)title
-           subTitle:(NSString *)subTitle
+           subtitle:(NSString *)subtitle
         placeholder:(NSString *)placeholder
               style:(UITableViewCellStyle)style{
-    return [self initWithTitle:title subTitle:subTitle placeholder:placeholder style:style modelCallback:nil];
+    return [self initWithTitle:title subtitle:subtitle placeholder:placeholder style:style handler:nil];
 }
 
 - (id)initWithTitle:(NSString *)title
-           subTitle:(NSString *)subTitle
+           subtitle:(NSString *)subtitle
         placeholder:(NSString *)placeholder
               style:(UITableViewCellStyle)style
              target:(id)target
              action:(SEL)action;{
     self = [super initWithTitle:title
-                       subTitle:subTitle
+                       subtitle:subtitle
                           style:style
                          target:target
                          action:action];
     if (self) {
-        [self setPlaceholder:placeholder];
-        [self setTextAlignment:NSTextAlignmentNatural];
+        self.placeholder = placeholder;
+        self.textAlignment = NSTextAlignmentNatural;
         [self copyStyle:[UITextField appearance]];
     }
     return self;
 }
 
 - (id)initWithTitle:(NSString *)title
-           subTitle:(NSString *)subTitle
+           subtitle:(NSString *)subtitle
         placeholder:(NSString *)placeholder
               style:(UITableViewCellStyle)style
-      modelCallback:(void (^)(STNormalCellModel* model))modelCallback;{
+            handler:(void (^)(STNormalCellModel* model))handler;{
     self = [super initWithTitle:title
-                       subTitle:subTitle
+                       subtitle:subtitle
                           style:style
-                  modelCallback:modelCallback];
+                        handler:handler];
     if (self) {
         self.placeholder = placeholder;
         self.textAlignment = NSTextAlignmentNatural;
@@ -224,7 +224,7 @@ const CGFloat STEditableCellHeight = 50;
 - (id)initWithCellModels:(NSArray *)cellModels;{
     self = [self init];
     if (self) {
-        [self setCellModels:[cellModels copy]];
+        self.cellModels = [cellModels copy];
     }
     return self;
 }
@@ -245,7 +245,7 @@ const CGFloat STEditableCellHeight = 50;
 }
 
 - (NSArray *)cellModels{
-    return [self muatableCellModels];
+    return [[self muatableCellModels] copy];
 }
 
 - (void)setCellModels:(NSArray *)cellModels{
@@ -324,6 +324,7 @@ const CGFloat STEditableCellHeight = 50;
 
 - (void)swizzle_setSelected:(BOOL)selected animated:(BOOL)animated{
     [self swizzle_setSelected:selected animated:animated];
+    
     self.model.selected = selected;
 }
 
@@ -341,31 +342,9 @@ const CGFloat STEditableCellHeight = 50;
 
 - (void)configSubViews{
     
-    [[self imageView] setImage:[[self model] image]];
-    [[self textLabel] setText:[[self model] title]];
-    [[self detailTextLabel] setText:[[self model] subTitle]];
-    if ([[self model] titleColor]) {
-        [[self textLabel] setTextColor:[[self model] titleColor]];
-    } else {
-        [[self textLabel] setTextColor:[UIColor blackColor]];
-    }
-    if ([[self model] titleFont]) {
-        [[self textLabel] setFont:[[self model] titleFont]];
-    } else {
-        [[self textLabel] setFont:[UIFont systemFontOfSize:44/3.]];
-    }
-    if ([[self model] subTitleColor]) {
-        [[self detailTextLabel] setTextColor:[[self model] subTitleColor]];
-    } else {
-        [[self detailTextLabel] setTextColor:[UIColor lightGrayColor]];
-    }
-    if ([[self model] subTitleFont]) {
-        [[self detailTextLabel] setFont:[[self model] subTitleFont]];
-    } else {
-        [[self detailTextLabel] setFont:[UIFont systemFontOfSize:36/3.]];
-    }
-    [self setSelectionStyle:[[self model] selectionStyle]];
-    [self setAccessoryType:[[self model] accessoryType]];
+    self.imageView.image = [[self model] image];
+    self.textLabel.text = [[self model] title];
+    self.detailTextLabel.text = [[self model] subtitle];
 }
 
 + (CGFloat)tableView:(UITableView *)tableView heightWithModel:(STNormalCellModel *)model{
@@ -382,58 +361,44 @@ const CGFloat STEditableCellHeight = 50;
 
 - (void)configSubViewsDefault{
     [super configSubViewsDefault];
-    [self setSelectionStyle:UITableViewCellSelectionStyleNone];
-    [[self textLabel] setTextColor:[UIColor blackColor]];
-    [[self textLabel] setFont:[UIFont systemFontOfSize:44/3.]];
-    [[self detailTextLabel] setTextColor:[UIColor lightGrayColor]];
-    [[self detailTextLabel] setFont:[UIFont systemFontOfSize:36/3.]];
+    
+    self.selectionStyle = UITableViewCellSelectionStyleNone;
+    self.textLabel.textColor = [UIColor blackColor];
+    self.textLabel.font = [UIFont systemFontOfSize:14];
+    self.detailTextLabel.textColor = [UIColor lightGrayColor];
+    self.detailTextLabel.font = [UIFont systemFontOfSize:12];
 }
 
 - (void)configSubViews{
     [super configSubViews];
-    [[self imageView] setImage:[[self model] image]];
-    [[self textLabel] setText:[[self model] title]];
-    [[self detailTextLabel] setText:[[self model] subTitle]];
-    [[self textLabel] setNumberOfLines:[[self model] titleNumberOfLines]];
-    [[self detailTextLabel] setNumberOfLines:[[self model] subTitleNumberOfLines]];
-    [[self textLabel] setTextAlignment:[[self model] titleAlignment]];
-    [[self detailTextLabel] setTextAlignment:[[self model] subTitleAlignment]];
-    [[self textLabel] setLineBreakMode:[[self model] titleLineBreakMode]];
-    [[self detailTextLabel] setLineBreakMode:[[self model] subTitleLineBreakMode]];
-    [self setSelectionStyle:[[self model] selectionStyle]];
-    [self setAccessoryType:[[self model] accessoryType]];
-    if ([[self model] titleColor]) {
-        [[self textLabel] setTextColor:[[self model] titleColor]];
-    } else {
-        [[self textLabel] setTextColor:[UIColor blackColor]];
-    }
-    if ([[self model] titleFont]) {
-        [[self textLabel] setFont:[[self model] titleFont]];
-    } else {
-        [[self textLabel] setFont:[UIFont systemFontOfSize:44/3.]];
-    }
-    if ([[self model] subTitleColor]) {
-        [[self detailTextLabel] setTextColor:[[self model] subTitleColor]];
-    } else {
-        [[self detailTextLabel] setTextColor:[UIColor grayColor]];
-    }
-    if ([[self model] subTitleFont]) {
-        [[self detailTextLabel] setFont:[[self model] subTitleFont]];
-    } else {
-        [[self detailTextLabel] setFont:[UIFont systemFontOfSize:36/3.]];
-    }
+    
+    self.textLabel.textColor = [[self model] titleColor] ?: [UIColor blackColor];
+    self.textLabel.font = [[self model] titleFont] ?: [UIFont systemFontOfSize:14];
+    self.textLabel.textAlignment = [[self model] titleAlignment];
+    self.textLabel.numberOfLines = [[self model] titleNumberOfLines];
+    self.textLabel.lineBreakMode = [[self model] titleLineBreakMode];
+    
+    self.detailTextLabel.textColor = [[self model] subtitleColor] ?: [UIColor lightGrayColor];
+    self.detailTextLabel.font = [[self model] subtitleFont] ?: [UIFont systemFontOfSize:12];
+    self.detailTextLabel.textAlignment = [[self model] subtitleAlignment];
+    self.detailTextLabel.numberOfLines = [[self model] subtitleNumberOfLines];
+    self.detailTextLabel.lineBreakMode = [[self model] subtitleLineBreakMode];
+    
+    self.selectionStyle = [[self model] selectionStyle];
+    self.accessoryType = [[self model] accessoryType];
+    
     if ([[self model]  backgroundColor]) {
-        [self setBackgroundColor:[[self model]  backgroundColor]];
+        self.backgroundColor = [[self model]  backgroundColor];
     }
     if ([[self model] contentColor]) {
-        [[self contentView] setBackgroundColor:[[self model] contentColor]];
+        self.contentView.backgroundColor = [[self model] contentColor];
     }
     if ([[self model] accessoryType] == UITableViewCellAccessoryDetailButton ||
         [[self model] accessoryType] == UITableViewCellAccessoryDetailDisclosureButton) {
         if ([[self model] detailAccessoryView]) {
-            [self setAccessoryView:[[self model] detailAccessoryView]];
+            self.accessoryView = [[self model] detailAccessoryView];
         } else if ([[self model] accessoryImage]){
-            [self setAccessoryView:[[UIImageView alloc] initWithImage:[[self model] accessoryImage]]];
+            self.accessoryView = [[UIImageView alloc] initWithImage:[[self model] accessoryImage]];
         }
     }
     if ([[self model] keyValues]) {
@@ -473,7 +438,7 @@ const CGFloat STEditableCellHeight = 50;
 }
 
 - (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier{
-    [self setStyle:style];
+    self.style = style;
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         [self relayoutSubViews:[[self contentView] bounds]];
@@ -485,13 +450,9 @@ const CGFloat STEditableCellHeight = 50;
     return [model height];
 }
 
-- (void)setFrame:(CGRect)frame{
-    [super setFrame:frame];
-    [self relayoutSubViews:[[self contentView] bounds]];
-}
-
 - (void)layoutSubviews{
     [super layoutSubviews];
+    
     [self relayoutSubViews:[[self contentView] bounds]];
 }
 
@@ -502,71 +463,70 @@ const CGFloat STEditableCellHeight = 50;
 
 - (void)configSubViews{
     [super configSubViews];
-    [[self detailTextField] addTarget:self action:@selector(didTextChanged:)
-                     forControlEvents:UIControlEventEditingChanged];
-    [[self detailTextField] setEnabled:[[self model] editable]];
-    [[self detailTextField] setText:[[self model] subTitle]];
-    [[self detailTextField] setPlaceholder:[[self model] placeholder]];
-    [[self detailTextField] setFont:[[self model] font]];
-    [[self detailTextField] setTextColor:[[self model] textColor]];
+    
+    self.detailTextField.enabled = [[self model] editable];
+    self.detailTextField.text = [[self model] subtitle];
+    self.detailTextField.placeholder = [[self model] placeholder];
+    self.detailTextField.font = [[self model] font];
+    self.detailTextField.textColor = [[self model] textColor];
     if ([[self model] textAlignment] != NSTextAlignmentNatural) {
-        [[self detailTextField] setTextAlignment:[[self model] textAlignment]];
+        self.detailTextField.textAlignment = [[self model] textAlignment];
     }
-    [[self detailTextField] setClearButtonMode:[[self model] clearsOnBeginEditing]];
-    [[self detailTextField] setAdjustsFontSizeToFitWidth:[[self model] adjustsFontSizeToFitWidth]];
-    [[self detailTextField] setMinimumFontSize:[[self model] minimumFontSize]];
-    [[self detailTextField] setBackground:[[self model] background]];
-    [[self detailTextField] setDisabledBackground:[[self model] disabledBackground]];
-    [[self detailTextField] setClearButtonMode:[[self model] clearButtonMode]];
-    [[self detailTextField] setLeftView:[[self model] leftView]];
-    [[self detailTextField] setLeftViewMode:[[self model] leftViewMode]];
-    [[self detailTextField] setRightView:[[self model] rightView]];
-    [[self detailTextField] setRightViewMode:[[self model] rightViewMode]];
-    [[self detailTextField] setAutocapitalizationType:[[self model] autocapitalizationType]];
-    [[self detailTextField] setAutocorrectionType:[[self model] autocorrectionType]];
-    [[self detailTextField] setSpellCheckingType:[[self model] spellCheckingType]];
-    [[self detailTextField] setKeyboardType:[[self model] keyboardType]];
-    [[self detailTextField] setKeyboardAppearance:[[self model] keyboardAppearance]];
-    [[self detailTextField] setReturnKeyType:[[self model] returnKeyType]];
+    self.detailTextField.clearsOnBeginEditing = [[self model] clearsOnBeginEditing];
+    self.detailTextField.adjustsFontSizeToFitWidth = [[self model] adjustsFontSizeToFitWidth];
+    self.detailTextField.minimumFontSize = [[self model] minimumFontSize];
+    self.detailTextField.background = [[self model] background];
+    self.detailTextField.disabledBackground = [[self model] disabledBackground];
+    self.detailTextField.clearButtonMode = [[self model] clearButtonMode];
+    self.detailTextField.leftView = [[self model] leftView];
+    self.detailTextField.leftViewMode = [[self model] leftViewMode];
+    self.detailTextField.rightView = [[self model] rightView];
+    self.detailTextField.rightViewMode = [[self model] rightViewMode];
+    self.detailTextField.autocapitalizationType = [[self model] autocapitalizationType];
+    self.detailTextField.autocorrectionType = [[self model] autocorrectionType];
+    self.detailTextField.spellCheckingType = [[self model] spellCheckingType];
+    self.detailTextField.keyboardType = [[self model] keyboardType];
+    self.detailTextField.keyboardAppearance = [[self model] keyboardAppearance];
+    self.detailTextField.returnKeyType = [[self model] returnKeyType];
+    
+    [[self detailTextField] addTarget:self action:@selector(didTextChanged:) forControlEvents:UIControlEventEditingChanged];
 }
 
 - (void)configSubViewsDefault{
     [super configSubViewsDefault];
-    [self setSelectionStyle:UITableViewCellSelectionStyleNone];
-    [[self detailTextLabel] setAlpha:0];
+    self.detailTextLabel.alpha = 0.f;
+    self.selectionStyle = UITableViewCellSelectionStyleNone;
     if ([self style] == UITableViewCellStyleDefault){
-        [[self detailTextField] setTextAlignment:NSTextAlignmentCenter];
-        [[self textLabel] setAlpha:0];
+        self.textLabel.alpha = 0.f;
+        self.detailTextField.textAlignment = NSTextAlignmentCenter;
+    } else if ([self style] == UITableViewCellStyleSubtitle || [self style] == UITableViewCellStyleValue2) {
+        self.detailTextField.textAlignment = NSTextAlignmentLeft;
+    } else {
+        self.detailTextField.textAlignment = NSTextAlignmentRight;
     }
-    else if ([self style] == UITableViewCellStyleSubtitle || [self style] == UITableViewCellStyleValue2) {
-        [[self detailTextField] setTextAlignment:NSTextAlignmentLeft];
-    }
-    else {
-        [[self detailTextField] setTextAlignment:NSTextAlignmentRight];
-    }
-    [[self textLabel] setTextColor:[UIColor blackColor]];
-    [[self detailTextField] setTextColor:[UIColor lightGrayColor]];
-    [[self textLabel] setFont:[UIFont systemFontOfSize:44/3.]];
-    [[self detailTextField] setFont:[UIFont systemFontOfSize:36/3.]];
+    self.textLabel.textColor = [UIColor blackColor];
+    self.textLabel.font = [UIFont systemFontOfSize:14];
+    self.detailTextField.textColor = [UIColor lightGrayColor];
+    self.detailTextField.font = [UIFont systemFontOfSize:12];
 }
 
 - (void)relayoutSubViews:(CGRect)bounds{
     if ([self style] == UITableViewCellStyleDefault){
-        [[self detailTextField] setFrame:bounds];
+        self.detailTextField.frame = bounds;
     }
     else if ([self style] == UITableViewCellStyleSubtitle){
-        [[self detailTextField] setFrame:CGRectMake([self layoutMargins].left, CGRectGetMaxY([[self textLabel] frame]), CGRectGetWidth(bounds) - [self layoutMargins].left - [[self contentView] layoutMargins].right, CGRectGetHeight(bounds) - CGRectGetMaxY([[self textLabel] frame]))];
+        self.detailTextField.frame = CGRectMake([self layoutMargins].left, CGRectGetMaxY([[self textLabel] frame]), CGRectGetWidth(bounds) - [self layoutMargins].left - [[self contentView] layoutMargins].right, CGRectGetHeight(bounds) - CGRectGetMaxY([[self textLabel] frame]));
     }
     else if ([self style] == UITableViewCellStyleValue1){
-        [[self detailTextField] setFrame:CGRectMake(CGRectGetMaxX([[self textLabel] frame]) + 8, 0, CGRectGetWidth(bounds) - CGRectGetMaxX([[self textLabel] frame]) - [[self contentView] layoutMargins].right - 8, CGRectGetHeight(bounds))];
+        self.detailTextField.frame = CGRectMake(CGRectGetMaxX([[self textLabel] frame]) + 8, 0, CGRectGetWidth(bounds) - CGRectGetMaxX([[self textLabel] frame]) - [[self contentView] layoutMargins].right - 8, CGRectGetHeight(bounds));
     }
     else if ([self style] == UITableViewCellStyleValue2){
-        [[self detailTextField] setFrame:CGRectMake(CGRectGetMaxX([[self textLabel] frame]) + 8, 0, CGRectGetWidth(bounds) - CGRectGetMaxX([[self textLabel] frame]) - [[self contentView] layoutMargins].right - 8, CGRectGetHeight(bounds))];
+        self.detailTextField.frame = CGRectMake(CGRectGetMaxX([[self textLabel] frame]) + 8, 0, CGRectGetWidth(bounds) - CGRectGetMaxX([[self textLabel] frame]) - [[self contentView] layoutMargins].right - 8, CGRectGetHeight(bounds));
     }
 }
 
 - (IBAction)didTextChanged:(UITextField *)sender{
-    [[self model] setSubTitle:[sender text]];
+    self.model.subtitle = [sender text];
 }
 
 @end
@@ -577,7 +537,7 @@ const CGFloat STEditableCellHeight = 50;
 
 @interface STSwitchCell ()
 
-@property(nonatomic, strong) UISwitch *evswtExchange;
+@property(nonatomic, strong) UISwitch *exchangeSwitch;
 
 @end
 
@@ -594,24 +554,25 @@ const CGFloat STEditableCellHeight = 50;
 
 - (void)createSubViews{
     [super createSubViews];
-    [self setEvswtExchange:[[UISwitch alloc] init]];
-    [self setAccessoryView:[self evswtExchange]];
+    self.exchangeSwitch = [[UISwitch alloc] init];
+    self.accessoryView = [self exchangeSwitch];
 }
 
 - (void)configSubViewsDefault{
     [super configSubViewsDefault];
-    [[self evswtExchange] addTarget:self action:@selector(didClickExchange:) forControlEvents:UIControlEventValueChanged];
+    [[self exchangeSwitch] addTarget:self action:@selector(didClickExchange:) forControlEvents:UIControlEventValueChanged];
 }
 
 - (void)configSubViews{
     [super configSubViews];
-    [[self evswtExchange] setOn:[[[self model] userInfo] boolValue]];
+    self.exchangeSwitch.on = [[[self model] userInfo] boolValue];
 }
 
 #pragma mark - actions
 
 - (IBAction)didClickExchange:(UISwitch *)sender{
-    [[self model] setUserInfo:@([sender isOn])];
+    self.model.userInfo = @([sender isOn]);
+    
     [[self model] performAction];
 }
 
@@ -636,8 +597,8 @@ const CGFloat STEditableCellHeight = 50;
 }
 
 - (void)configurate{
-    [[self contentView] setBackgroundColor:[UIColor clearColor]];
-    [self setBackgroundView:nil];
+    self.backgroundView = nil;
+    self.contentView.backgroundColor = [UIColor clearColor];
 }
 
 @end
@@ -667,7 +628,7 @@ const CGFloat STEditableCellHeight = 50;
 - (instancetype)initWithStyle:(UITableViewStyle)style defaultCellSections:(NSArray *)defaultCellSections;{
     self = [super initWithFrame:CGRectZero];
     if (self) {
-        [self setStyle:style];
+        self.style = style;
         if (defaultCellSections) {
             self.defaultCellSectionModels = [defaultCellSections copy];
         }
@@ -717,47 +678,49 @@ const CGFloat STEditableCellHeight = 50;
 }
 
 - (void)configSubViewsDefault{
-    [[self tableView] setDelegate:self];
-    [[self tableView] setDataSource:self];
+    self.tableView.delegate = self;
+    self.tableView.dataSource = self;
+    
     [[self tableView] registerClass:[STTextCell class] forCellReuseIdentifier:NSStringFromClass([STTextCell class])];
 }
 
 - (void)installConstraints{
-    [[self tableView] setTranslatesAutoresizingMaskIntoConstraints:NO];
-    NSMutableArray *etMutableConstraints = [NSMutableArray array];
-    NSLayoutConstraint *etConstraint = [NSLayoutConstraint constraintWithItem:[self tableView]
-                                                                    attribute:NSLayoutAttributeLeft
-                                                                    relatedBy:NSLayoutRelationEqual
-                                                                       toItem:self
-                                                                    attribute:NSLayoutAttributeLeft
-                                                                   multiplier:1
-                                                                     constant:0];
-    [etMutableConstraints addObject:etConstraint];
-    etConstraint = [NSLayoutConstraint constraintWithItem:[self tableView]
-                                                attribute:NSLayoutAttributeRight
-                                                relatedBy:NSLayoutRelationEqual
-                                                   toItem:self
-                                                attribute:NSLayoutAttributeRight
-                                               multiplier:1
-                                                 constant:0];
-    [etMutableConstraints addObject:etConstraint];
-    etConstraint = [NSLayoutConstraint constraintWithItem:[self tableView]
-                                                attribute:NSLayoutAttributeTop
-                                                relatedBy:NSLayoutRelationEqual
-                                                   toItem:self
-                                                attribute:NSLayoutAttributeTop
-                                               multiplier:1
-                                                 constant:0];
-    [etMutableConstraints addObject:etConstraint];
-    etConstraint = [NSLayoutConstraint constraintWithItem:[self tableView]
-                                                attribute:NSLayoutAttributeBottom
-                                                relatedBy:NSLayoutRelationEqual
-                                                   toItem:self
-                                                attribute:NSLayoutAttributeBottom
-                                               multiplier:1
-                                                 constant:0];
-    [etMutableConstraints addObject:etConstraint];
-    [self addConstraints:etMutableConstraints];
+    self.tableView.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    NSMutableArray *mutableConstraints = [NSMutableArray array];
+    NSLayoutConstraint *constraint = [NSLayoutConstraint constraintWithItem:[self tableView]
+                                                                  attribute:NSLayoutAttributeLeft
+                                                                  relatedBy:NSLayoutRelationEqual
+                                                                     toItem:self
+                                                                  attribute:NSLayoutAttributeLeft
+                                                                 multiplier:1
+                                                                   constant:0];
+    [mutableConstraints addObject:constraint];
+    constraint = [NSLayoutConstraint constraintWithItem:[self tableView]
+                                              attribute:NSLayoutAttributeRight
+                                              relatedBy:NSLayoutRelationEqual
+                                                 toItem:self
+                                              attribute:NSLayoutAttributeRight
+                                             multiplier:1
+                                               constant:0];
+    [mutableConstraints addObject:constraint];
+    constraint = [NSLayoutConstraint constraintWithItem:[self tableView]
+                                              attribute:NSLayoutAttributeTop
+                                              relatedBy:NSLayoutRelationEqual
+                                                 toItem:self
+                                              attribute:NSLayoutAttributeTop
+                                             multiplier:1
+                                               constant:0];
+    [mutableConstraints addObject:constraint];
+    constraint = [NSLayoutConstraint constraintWithItem:[self tableView]
+                                              attribute:NSLayoutAttributeBottom
+                                              relatedBy:NSLayoutRelationEqual
+                                                 toItem:self
+                                              attribute:NSLayoutAttributeBottom
+                                             multiplier:1
+                                               constant:0];
+    [mutableConstraints addObject:constraint];
+    [self addConstraints:mutableConstraints];
 }
 
 #pragma mark - public
@@ -792,12 +755,12 @@ const CGFloat STEditableCellHeight = 50;
 
 - (STNormalCellModel *)addCellWithTitle:(NSString *)title section:(NSUInteger)section;{
     STNormalCellModel *normalCellModel = [[STNormalCellModel alloc] init];
-    [normalCellModel setTitle:title];
+    normalCellModel.title = title;
     [self addCellWithModel:normalCellModel section:section];
     return normalCellModel;
 }
 - (STNormalCellModel *)addCellWithTitle:(NSString *)title detailText:(NSString *)detailText image:(UIImage *)image style:(UITableViewCellStyle)style section:(NSUInteger)section;{
-    STNormalCellModel *normalCellModel = [[STNormalCellModel alloc] initWithTitle:title subTitle:detailText style:style target:nil action:nil];
+    STNormalCellModel *normalCellModel = [[STNormalCellModel alloc] initWithTitle:title subtitle:detailText style:style target:nil action:nil];
     normalCellModel.image = image;
     [self addCellWithModel:normalCellModel section:section];
     return normalCellModel;
@@ -805,12 +768,12 @@ const CGFloat STEditableCellHeight = 50;
 
 - (STNormalCellModel *)insertCellWithTitle:(NSString *)title indexPath:(NSIndexPath *)indexPath;{
     STNormalCellModel *normalCellModel = [[STNormalCellModel alloc] init];
-    [normalCellModel setTitle:title];
+    normalCellModel.title = title;
     [self insertCellWithModel:normalCellModel indexPath:indexPath];
     return normalCellModel;
 }
 - (STNormalCellModel *)insertCellWithTitle:(NSString *)title detailText:(NSString *)detailText image:(UIImage *)image style:(UITableViewCellStyle)style indexPath:(NSIndexPath *)indexPath;{
-    STNormalCellModel *normalCellModel = [[STNormalCellModel alloc] initWithTitle:title subTitle:detailText style:style target:nil action:nil];
+    STNormalCellModel *normalCellModel = [[STNormalCellModel alloc] initWithTitle:title subtitle:detailText style:style target:nil action:nil];
     normalCellModel.image = image;
     [self insertCellWithModel:normalCellModel indexPath:indexPath];
     return normalCellModel;
@@ -942,9 +905,9 @@ const CGFloat STEditableCellHeight = 50;
     UIView<STNormalSectionViewInterface> *header = [[[sectionModel headerViewClass] alloc] initWithFrame:CGRectMake(0, 0, 0, MAX([sectionModel headerViewHeight], 0))];
     header.sectionModel = sectionModel;
     if ([sectionModel headerBackgroundColor] && [header isKindOfClass:[UITableViewHeaderFooterView class]]) {
-        [[(UITableViewHeaderFooterView *)header contentView] setBackgroundColor:[sectionModel headerBackgroundColor]];
+        ((UITableViewHeaderFooterView *)header).contentView.backgroundColor = [sectionModel headerBackgroundColor];
     } else {
-        [header setBackgroundColor:[sectionModel headerBackgroundColor]];
+        header.backgroundColor = [sectionModel headerBackgroundColor];
     }
     return header;
 }
@@ -954,9 +917,9 @@ const CGFloat STEditableCellHeight = 50;
     UIView<STNormalSectionViewInterface> *footer = [[[sectionModel footerViewClass] alloc] initWithFrame:CGRectMake(0, 0, 0, MAX([sectionModel footerViewHeight], 0.1))];
     footer.sectionModel = sectionModel;
     if ([sectionModel footerBackgroundColor] && [footer isKindOfClass:[UITableViewHeaderFooterView class]]) {
-        [[(UITableViewHeaderFooterView *)footer contentView] setBackgroundColor:[sectionModel headerBackgroundColor]];
+        ((UITableViewHeaderFooterView *)footer).contentView.backgroundColor = [sectionModel footerBackgroundColor];
     } else {
-        [footer setBackgroundColor:[sectionModel footerBackgroundColor]];
+        footer.backgroundColor = [sectionModel footerBackgroundColor];
     }
     return footer;
 }
