@@ -249,6 +249,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.markejave.STStaticTableView;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				WARNING_CFLAGS = "-Wno-deprecated-declarations";
 			};
 			name = Debug;
 		};
@@ -266,6 +267,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.markejave.STStaticTableView;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				WARNING_CFLAGS = "-Wno-deprecated-declarations";
 			};
 			name = Release;
 		};
