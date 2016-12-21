@@ -254,7 +254,10 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.markejave.STStaticTableView;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				WARNING_CFLAGS = "-Wno-deprecated-declarations";
+				WARNING_CFLAGS = (
+					"-Wno-deprecated-declarations",
+					"-Wno-arc-performSelector-leaks",
+				);
 			};
 			name = Debug;
 		};
@@ -273,7 +276,10 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.markejave.STStaticTableView;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				WARNING_CFLAGS = "-Wno-deprecated-declarations";
+				WARNING_CFLAGS = (
+					"-Wno-deprecated-declarations",
+					"-Wno-arc-performSelector-leaks",
+				);
 			};
 			name = Release;
 		};
