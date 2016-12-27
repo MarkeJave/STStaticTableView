@@ -219,7 +219,7 @@ typedef NS_ENUM(NSInteger, STTableViewCellLayoutStyle) {
 
 @interface STStaticTableView : UIView
 
-@property(nonatomic, strong) id<UITableViewDelegate, UITableViewDataSource> delegate;
+@property(nonatomic, assign) id<UITableViewDelegate, UITableViewDataSource> delegate;
 
 @property(nonatomic, strong, readonly) UITableView *tableView;
 
